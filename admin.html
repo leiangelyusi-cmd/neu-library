@@ -1,0 +1,30 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+  async function loadAdmin() {
+    const { data: { session } } = await sb.auth.getSession()
+
+    // Not logged in
+    if (!session) {
+      window.location.href = 'index.html'
+      return
+    }
+
+    // Check role — only admin allowed here
+    const { data: roleData } = await sb.from('user_roles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+
+    const role = roleData?.role || 'user'
+
+    if (role !== 'admin') {
+      window.location.href = 'user.html'
+      return
+    }
+
+    document.getElementById('adminEmail').textContent = 'Logged in as: ' + session.user.email
+  }
+
+  loadAdmin()
+</script>

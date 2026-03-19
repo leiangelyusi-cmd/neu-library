@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEU Library – Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card">
+    <h1>NEU Library System</h1>
+    <p>Sign in to access the library portal</p>
+
+    <button class="btn-google" id="loginBtn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"/>
+      Sign in with Google
+    </button>
+
+    <p class="error-msg" id="errorMsg"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

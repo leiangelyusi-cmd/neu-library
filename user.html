@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEU Library – Welcome</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="card">
+    <div class="welcome-box">
+      <h2>Welcome to NEU Library!</h2>
+      <p id="userEmail">Loading...</p>
+    </div>
+    <br/>
+    <button onclick="logout()"
+      style="background:#1a1a2e;color:white;width:100%;padding:12px;
+             border-radius:8px;border:none;cursor:pointer;font-size:15px;">
+      Sign Out
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script>
+    async function loadUser() {
+      const { data: { session } } = await sb.auth.getSession()
+
+      // Not logged in — go back to login
+      if (!session) {
+        window.location.href = 'index.html'
+        return
+      }
+
+      // Check role
+      const { data: roleData } = await sb.from('user_roles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+
+      const role = roleData?.role || 'user'
+
+      // If admin, redirect to admin dashboard
+      if (role === 'admin') {
+        window.location.href = 'admin.html'
+        return
+      }
+
+      // Show welcome message for regular users
+      document.getElementById('userEmail').textContent = session.user.email
+    }
+
+    loadUser()
+  </script>
+</body>
+</html>
