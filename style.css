@@ -1,35 +1,92 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'Segoe UI', sans-serif;
   background: #f0f4f8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
 }
 
+/* Landing page */
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+}
+
+.landing h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.landing p {
+  font-size: 18px;
+  opacity: 0.7;
+  margin-bottom: 48px;
+}
+
+.landing-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-primary {
+  padding: 16px 36px;
+  background: #4f8ef7;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  background: #3a7be0;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  padding: 16px 36px;
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Card */
 .card {
   background: white;
   padding: 48px 40px;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  text-align: center;
-  max-width: 420px;
+  max-width: 480px;
   width: 100%;
-}
-
-.card img {
-  width: 80px;
-  margin-bottom: 16px;
+  margin: 40px auto;
 }
 
 .card h1 {
-  font-size: 22px;
+  font-size: 24px;
   color: #1a1a2e;
   margin-bottom: 8px;
 }
@@ -37,9 +94,73 @@ body {
 .card p {
   color: #666;
   font-size: 14px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
+/* Form */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #333;
+  background: white;
+  transition: border 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4f8ef7;
+}
+
+.form-group.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group.checkbox input {
+  width: auto;
+}
+
+.form-group.checkbox label {
+  margin: 0;
+  font-weight: 400;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+
+.btn-submit:hover { background: #2d2d50; }
+
+/* Google button */
 .btn-google {
   display: flex;
   align-items: center;
@@ -62,56 +183,21 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.btn-google img {
-  width: 20px;
-  margin: 0;
-}
+.btn-google img { width: 20px; }
 
+/* Welcome / confirmation */
 .welcome-box {
   background: #e8f5e9;
   border-radius: 12px;
   padding: 32px;
-  margin-top: 16px;
-}
-
-.welcome-box h2 {
-  color: #2e7d32;
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.welcome-box p {
-  color: #555;
-  margin-bottom: 0;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin: 24px 0;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   text-align: center;
+  margin-bottom: 20px;
 }
 
-.stat-card h3 {
-  font-size: 32px;
-  color: #1a1a2e;
-  margin-bottom: 4px;
-}
+.welcome-box h2 { color: #2e7d32; font-size: 26px; margin-bottom: 8px; }
+.welcome-box p { color: #555; margin: 0; }
 
-.stat-card p {
-  font-size: 13px;
-  color: #888;
-  margin: 0;
-}
-
+/* Admin header */
 .admin-header {
   background: #1a1a2e;
   color: white;
@@ -121,9 +207,7 @@ body {
   align-items: center;
 }
 
-.admin-header h1 {
-  font-size: 18px;
-}
+.admin-header h1 { font-size: 18px; }
 
 .btn-logout {
   background: transparent;
@@ -136,34 +220,74 @@ body {
   transition: background 0.2s;
 }
 
-.btn-logout:hover {
-  background: rgba(255,255,255,0.1);
-}
+.btn-logout:hover { background: rgba(255,255,255,0.1); }
 
+/* Admin body */
 .admin-body {
-  max-width: 960px;
+  max-width: 1000px;
   margin: 32px auto;
   padding: 0 24px;
 }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  text-align: center;
+}
+
+.stat-card h3 { font-size: 36px; color: #1a1a2e; margin-bottom: 4px; }
+.stat-card p { font-size: 13px; color: #888; margin: 0; }
 
 .filters {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 24px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
-.filters select, .filters input {
+.filters select,
+.filters input[type="date"] {
   padding: 10px 14px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
   background: white;
   color: #333;
+  flex: 1;
+  min-width: 160px;
 }
 
-.error-msg {
-  color: #c0392b;
-  font-size: 14px;
-  margin-top: 12px;
+.filters label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 160px;
 }
+
+.error-msg { color: #c0392b; font-size: 14px; margin-top: 12px; }
+.success-msg { color: #2e7d32; font-size: 14px; margin-top: 12px; }
+
+.admin-link {
+  margin-top: 24px;
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+.admin-link a { color: white; text-decoration: underline; }
