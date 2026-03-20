@@ -73,12 +73,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script>
-    let currentSession = null
-
     async function init() {
       const { data: { session } } = await sb.auth.getSession()
+
       if (!session) {
-        const { error } = await sb.auth.signInWithOAuth({
+        await sb.auth.signInWithOAuth({
           provider: 'google',
           options: {
             redirectTo: 'https://neu-library.netlify.app/visitor.html'
@@ -86,7 +85,8 @@
         })
         return
       }
-      currentSession = session
+
+      window.currentSession = session
       document.getElementById('visitorEmail').textContent = session.user.email
     }
 
@@ -96,16 +96,23 @@
     })
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
+      const errorMsg = document.getElementById('errorMsg')
+      const successMsg = document.getElementById('successMsg')
+      errorMsg.textContent = ''
+      successMsg.textContent = ''
+
+      const { data: { session } } = await sb.auth.getSession()
+
+      if (!session) {
+        errorMsg.textContent = 'Session expired. Please refresh and log in again.'
+        return
+      }
+
       const name = document.getElementById('name').value.trim()
       const college = document.getElementById('college').value
       const purpose = document.getElementById('purpose').value
       const isEmployee = document.getElementById('isEmployee').checked
       const employeeType = document.getElementById('employeeType').value
-
-      const errorMsg = document.getElementById('errorMsg')
-      const successMsg = document.getElementById('successMsg')
-      errorMsg.textContent = ''
-      successMsg.textContent = ''
 
       if (!name || !college || !purpose) {
         errorMsg.textContent = 'Please fill in all required fields.'
@@ -117,18 +124,22 @@
         return
       }
 
-      const { error } = await sb.from('visitors').insert({
+      console.log('Inserting visitor:', { name, college, purpose, isEmployee })
+
+      const { data, error } = await sb.from('visitors').insert({
         name,
-        email: currentSession?.user?.email || null,
+        email: session.user.email,
         college,
         purpose,
         is_employee: isEmployee,
         employee_type: isEmployee ? employeeType : null
       })
 
+      console.log('Insert result:', data, error)
+
       if (error) {
-        errorMsg.textContent = 'Something went wrong. Please try again.'
-        console.error(error)
+        errorMsg.textContent = 'Error: ' + error.message
+        console.error('Supabase error:', error)
         return
       }
 
