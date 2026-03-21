@@ -3,270 +3,353 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEU Library – Admin Dashboard</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&display=swap"/>
+  <title>NEU Library – Admin</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap"/>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
     :root {
-      --green: #1a6b3a; --green-l: #2a8f4f; --dark: #0d1b12;
-      --dark-2: #12271a; --dark-3: #1b3324;
-      --surface: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.08);
-      --text: #e8f0eb; --text-2: rgba(232,240,235,0.6); --text-3: rgba(232,240,235,0.35);
+      --white: #ffffff;
+      --off: #f7f7f5;
+      --off2: #f0efec;
+      --border: #e4e3de;
+      --text: #1a1916;
+      --text2: #6b6960;
+      --text3: #a8a79e;
+      --accent: #2a5c3f;
+      --accent-pale: #eef5f1;
+      --red: #c0392b;
+      --red-pale: #fdf1f0;
+      --green: #166534;
     }
-    body { font-family:'DM Sans',sans-serif; background:var(--dark); color:var(--text); display:flex; min-height:100vh; -webkit-font-smoothing:antialiased; }
 
-    .sidebar { width:252px; background:var(--dark-2); display:flex; flex-direction:column; position:fixed; height:100vh; overflow-y:auto; z-index:100; border-right:1px solid var(--border); }
-    .sidebar-logo { padding:24px 20px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-    .sidebar-logo img { width:40px; height:40px; flex-shrink:0; }
-    .sidebar-logo-text .uni { font-size:12px; font-weight:700; color:#5dd98c; letter-spacing:0.3px; }
-    .sidebar-logo-text .sys { font-size:11px; color:var(--text-3); margin-top:1px; }
-    .sidebar-nav { padding:12px 0; flex:1; }
-    .nav-label { font-size:10px; font-weight:600; color:var(--text-3); letter-spacing:1.5px; text-transform:uppercase; padding:10px 20px 6px; }
-    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 20px; color:var(--text-2); font-size:13.5px; font-weight:500; cursor:pointer; transition:all 0.18s; border-left:2px solid transparent; margin:1px 0; }
-    .nav-item:hover { background:var(--surface); color:var(--text); }
-    .nav-item.active { background:rgba(26,107,58,0.15); color:#5dd98c; border-left:2px solid #5dd98c; }
-    .nav-icon { width:17px; height:17px; flex-shrink:0; }
-    .sidebar-bottom { padding:16px 20px; border-top:1px solid var(--border); }
-    .library-status { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
-    .status-label { font-size:10px; color:var(--text-3); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
-    .status-badge { display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; }
-    .status-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e; }
-    .status-dot.closed { background:#ef4444; box-shadow:0 0 8px #ef4444; }
-    .status-info { font-size:11px; color:var(--text-3); margin-top:5px; }
-    .admin-profile { display:flex; align-items:center; gap:10px; }
-    .admin-avatar { width:34px; height:34px; border-radius:50%; background:var(--green); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
-    .admin-name { font-size:13px; font-weight:500; }
-    .admin-email { font-size:11px; color:var(--text-3); }
-    .btn-signout { background:none; border:none; color:var(--text-3); font-size:11px; font-family:'DM Sans',sans-serif; cursor:pointer; margin-top:2px; padding:0; transition:color 0.2s; }
-    .btn-signout:hover { color:#ef4444; }
+    body {
+      font-family: 'Geist', sans-serif;
+      background: var(--off);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    .main { margin-left:252px; flex:1; padding:32px; min-height:100vh; }
-    .page-header { margin-bottom:24px; }
-    .page-breadcrumb { font-size:11px; color:var(--text-3); letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
-    .page-title { font-family:'DM Serif Display',serif; font-size:28px; font-weight:400; }
-    .page-subtitle { font-size:13px; color:var(--text-3); margin-top:4px; }
+    /* TOP NAV */
+    .topnav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(175px,1fr)); gap:14px; margin-bottom:24px; }
-    .stat-card { background:var(--dark-3); border:1px solid var(--border); border-radius:12px; padding:20px; }
-    .stat-card .label { font-size:11px; color:var(--text-3); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
-    .stat-card .value { font-size:34px; font-weight:700; line-height:1; }
-    .stat-card .sub { font-size:11px; color:var(--text-3); margin-top:6px; }
-    .stat-card.green .value { color:#5dd98c; }
-    .stat-card.blue .value { color:#60a5fa; }
-    .stat-card.purple .value { color:#c084fc; }
-    .stat-card.amber .value { color:#fbbf24; }
+    .topnav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      height: 58px;
+      gap: 0;
+    }
 
-    .filters-bar { background:var(--dark-3); border:1px solid var(--border); border-radius:12px; padding:16px 18px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
-    .filter-group { display:flex; flex-direction:column; gap:5px; flex:1; min-width:140px; }
-    .filter-group label { font-size:10px; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
-    .filter-group select, .filter-group input[type="date"] { background:var(--dark-2); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:8px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; transition:border 0.2s; appearance:none; }
-    .filter-group select:focus, .filter-group input:focus { border-color:#5dd98c; }
-    .filter-group select option { background:#1b3324; }
-    .search-bar { background:var(--dark-2); border:1px solid var(--border); border-radius:8px; padding:9px 14px; color:var(--text); font-size:13px; font-family:'DM Sans',sans-serif; outline:none; flex:2; min-width:200px; transition:border 0.2s; }
-    .search-bar:focus { border-color:#5dd98c; }
-    .search-bar::placeholder { color:var(--text-3); }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-right: 40px;
+      flex-shrink: 0;
+    }
 
-    .table-card { background:var(--dark-3); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-    .table-header { padding:16px 22px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
-    .table-title { font-size:14px; font-weight:600; }
-    .table-count { font-size:12px; color:var(--text-3); background:var(--surface); padding:4px 10px; border-radius:20px; }
-    .btn-export { background:rgba(26,107,58,0.2); color:#5dd98c; border:1px solid rgba(93,217,140,0.25); padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; font-family:'DM Sans',sans-serif; cursor:pointer; transition:background 0.2s; }
-    .btn-export:hover { background:rgba(26,107,58,0.35); }
+    .nav-brand img { width: 30px; height: 30px; }
 
-    table { width:100%; border-collapse:collapse; }
-    thead tr { background:rgba(255,255,255,0.02); }
-    th { padding:11px 20px; text-align:left; font-size:10px; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; }
-    td { padding:13px 20px; font-size:13px; color:var(--text-2); border-top:1px solid rgba(255,255,255,0.04); }
-    tr:hover td { background:rgba(255,255,255,0.02); }
+    .nav-brand-text {
+      font-family: 'Instrument Serif', serif;
+      font-size: 17px;
+      color: var(--text);
+    }
 
-    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
-    .badge-student  { background:rgba(96,165,250,0.15);  color:#60a5fa; }
-    .badge-employee { background:rgba(192,132,252,0.15); color:#c084fc; }
-    .badge-active   { background:rgba(93,217,140,0.15);  color:#5dd98c; }
-    .badge-blocked  { background:rgba(239,68,68,0.12);   color:#ef4444; }
+    .nav-tabs { display: flex; align-items: center; gap: 2px; flex: 1; }
 
-    .btn-block   { background:rgba(239,68,68,0.1);  color:#ef4444; border:1px solid rgba(239,68,68,0.2);  padding:5px 14px; border-radius:6px; font-size:12px; font-weight:600; font-family:'DM Sans',sans-serif; cursor:pointer; transition:background 0.2s; }
-    .btn-block:hover { background:rgba(239,68,68,0.2); }
-    .btn-unblock { background:rgba(93,217,140,0.1); color:#5dd98c; border:1px solid rgba(93,217,140,0.2); padding:5px 14px; border-radius:6px; font-size:12px; font-weight:600; font-family:'DM Sans',sans-serif; cursor:pointer; transition:background 0.2s; }
-    .btn-unblock:hover { background:rgba(93,217,140,0.2); }
+    .nav-tab {
+      padding: 6px 14px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s;
+      border: none;
+      background: none;
+      font-family: 'Geist', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
 
-    .visitor-avatar { width:30px; height:30px; border-radius:50%; background:var(--green); display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; margin-right:10px; flex-shrink:0; vertical-align:middle; }
-    .visitor-name  { font-weight:500; color:var(--text); }
-    .visitor-email { font-size:11px; color:var(--text-3); }
-    .empty-state { padding:60px; text-align:center; color:var(--text-3); font-size:14px; }
-    .section { display:none; }
-    .section.active { display:block; }
+    .nav-tab:hover { background: var(--off); color: var(--text); }
+    .nav-tab.active { background: var(--accent-pale); color: var(--accent); font-weight: 600; }
+    .nav-tab svg { width: 15px; height: 15px; opacity: 0.7; }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: var(--green);
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      padding: 4px 10px; border-radius: 20px;
+    }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+
+    .admin-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--off); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 12px 4px 4px;
+    }
+
+    .admin-chip-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent); color: white;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .admin-chip-email { font-size: 12px; color: var(--text2); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .btn-signout { font-size: 12px; font-weight: 500; color: var(--text3); background: none; border: none; cursor: pointer; font-family: 'Geist', sans-serif; transition: color 0.15s; }
+    .btn-signout:hover { color: var(--red); }
+
+    /* PAGE */
+    .page { max-width: 1280px; margin: 0 auto; padding: 36px 32px; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .page-head h1 { font-family: 'Instrument Serif', serif; font-size: 34px; font-weight: 400; letter-spacing: -0.5px; line-height: 1; }
+    .page-head p { font-size: 13px; color: var(--text3); margin-top: 5px; }
+
+    /* FILTERS */
+    .filter-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+      margin-bottom: 24px; background: var(--white);
+      border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;
+    }
+
+    .fg { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
+    .fg label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+    .fg select, .fg input[type="date"] {
+      background: var(--off); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 10px; border-radius: 7px; font-size: 13px;
+      font-family: 'Geist', sans-serif; outline: none; transition: border 0.15s;
+      appearance: none; -webkit-appearance: none;
+    }
+    .fg select:focus, .fg input:focus { border-color: var(--accent); }
+
+    .search-input {
+      flex: 2; min-width: 200px; background: var(--off); border: 1px solid var(--border);
+      border-radius: 7px; padding: 8px 12px; font-size: 13px;
+      font-family: 'Geist', sans-serif; color: var(--text); outline: none; transition: border 0.15s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text3); }
+
+    .btn-export {
+      background: var(--text); color: var(--white); border: none;
+      padding: 8px 16px; border-radius: 7px; font-size: 12px; font-weight: 600;
+      font-family: 'Geist', sans-serif; cursor: pointer; transition: background 0.15s;
+      white-space: nowrap; align-self: flex-end;
+    }
+    .btn-export:hover { background: #333; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 28px; }
+
+    .stat {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 22px;
+      position: relative; overflow: hidden;
+    }
+
+    .stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .stat.s-total::before   { background: #2a5c3f; }
+    .stat.s-student::before { background: #1d4ed8; }
+    .stat.s-emp::before     { background: #7c3aed; }
+    .stat.s-college::before { background: #b45309; }
+    .stat.s-purpose::before { background: #64748b; }
+
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+    .stat-value { font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1; color: var(--text); }
+    .stat-value.sm { font-size: 20px; line-height: 1.3; }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+    /* TABLE */
+    .table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-head-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+    .table-head-bar h3 { font-size: 14px; font-weight: 600; }
+    .record-count { font-size: 12px; color: var(--text3); background: var(--off); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th { padding: 10px 22px; text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; background: var(--off); }
+    td { padding: 13px 22px; font-size: 13px; color: var(--text2); border-bottom: 1px solid var(--border); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--off); }
+
+    .vis-name { font-weight: 500; color: var(--text); font-size: 13.5px; }
+    .vis-email { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+    .avatar {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--accent-pale); color: var(--accent);
+      font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-right: 10px; vertical-align: middle; flex-shrink: 0;
+    }
+
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .b-student  { background: #eff6ff; color: #1d4ed8; }
+    .b-employee { background: #faf5ff; color: #7c3aed; }
+    .b-active   { background: #f0fdf4; color: #166534; }
+    .b-blocked  { background: var(--red-pale); color: var(--red); }
+
+    .btn-block   { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 5px; border: 1px solid #fecaca; background: var(--red-pale); color: var(--red); cursor: pointer; font-family: 'Geist', sans-serif; transition: all 0.15s; }
+    .btn-block:hover { background: #fee2e2; }
+    .btn-unblock { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 5px; border: 1px solid #bbf7d0; background: #f0fdf4; color: var(--green); cursor: pointer; font-family: 'Geist', sans-serif; transition: all 0.15s; }
+    .btn-unblock:hover { background: #dcfce7; }
+
+    .empty-state { padding: 64px; text-align: center; color: var(--text3); font-size: 14px; }
   </style>
 </head>
 <body>
 
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <img src="neweralogo.png" alt="NEU"/>
-      <div class="sidebar-logo-text">
-        <div class="uni">New Era University</div>
-        <div class="sys">Library Management</div>
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <div class="nav-brand">
+        <img src="neweralogo.png" alt="NEU"/>
+        <span class="nav-brand-text">Library Admin</span>
       </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-label">Navigation</div>
-      <div class="nav-item active" onclick="showSection('dashboard', this)">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        Dashboard
-      </div>
-      <div class="nav-item" onclick="showSection('visitorlogs', this)">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Visitor Logs
-      </div>
-      <div class="nav-item" onclick="showSection('usermanagement', this)">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        User Management
-      </div>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="library-status">
-        <div class="status-label">Library Status</div>
-        <div class="status-badge"><div class="status-dot" id="statusDot"></div><span id="statusText">OPEN</span></div>
-        <div class="status-info" id="statusInfo"></div>
-      </div>
-      <div class="admin-profile">
-        <div class="admin-avatar" id="adminAvatar">A</div>
-        <div>
-          <div class="admin-name">Administrator</div>
-          <div class="admin-email" id="adminEmail"></div>
-          <button class="btn-signout" onclick="logout()">— Sign Out</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="main">
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('dashboard', this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+          Overview
+        </button>
+        <button class="nav-tab" onclick="showSection('visitorlogs', this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          Visitor Logs
+        </button>
+        <button class="nav-tab" onclick="showSection('usermanagement', this)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Users
+        </button>
+      </div>
+
+      <div class="nav-right">
+        <div class="status-pill"><div class="status-dot"></div>Library Open</div>
+        <div class="admin-chip">
+          <div class="admin-chip-avatar" id="adminAvatar">A</div>
+          <span class="admin-chip-email" id="adminEmail">admin</span>
+        </div>
+        <button class="btn-signout" onclick="logout()">Sign out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
 
     <!-- DASHBOARD -->
     <div class="section active" id="section-dashboard">
-      <div class="page-header">
-        <div class="page-breadcrumb">Overview</div>
-        <div class="page-title">Dashboard</div>
-        <div class="page-subtitle" id="dashSubtitle"></div>
+      <div class="page-head">
+        <div>
+          <h1>Overview</h1>
+          <p id="dashSubtitle">Library visitor statistics</p>
+        </div>
       </div>
-      <div class="filters-bar">
-        <div class="filter-group">
-          <label>Time Range</label>
+
+      <div class="filter-bar">
+        <div class="fg">
+          <label>Period</label>
           <select id="timeRange" onchange="handleTimeRange()">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month">This Month</option>
-            <option value="custom">Custom Range</option>
+            <option value="custom">Custom</option>
           </select>
         </div>
-        <div class="filter-group" id="startLabel" style="display:none;"><label>From</label><input type="date" id="startDate" onchange="loadDashboard()"/></div>
-        <div class="filter-group" id="endLabel" style="display:none;"><label>To</label><input type="date" id="endDate" onchange="loadDashboard()"/></div>
-        <div class="filter-group">
+        <div class="fg" id="startLabel" style="display:none;"><label>From</label><input type="date" id="startDate" onchange="loadDashboard()"/></div>
+        <div class="fg" id="endLabel" style="display:none;"><label>To</label><input type="date" id="endDate" onchange="loadDashboard()"/></div>
+        <div class="fg">
           <label>College</label>
           <select id="filterCollege" onchange="loadDashboard()">
             <option value="">All Colleges</option>
-            <option>College of Accountancy</option>
-            <option>College of Agriculture</option>
-            <option>College of Arts and Science</option>
-            <option>College of Business Administration</option>
-            <option>College of Communication</option>
-            <option>College of Informatics and Computing Studies</option>
-            <option>College of Criminology</option>
-            <option>College of Education</option>
-            <option>College of Engineering and Architecture</option>
-            <option>College of Medical Technology</option>
-            <option>College of Midwifery</option>
-            <option>College of Music</option>
-            <option>College of Nursing</option>
-            <option>College of Physical Therapy</option>
-            <option>College of Respiratory Therapy</option>
-            <option>School of International Relations</option>
-            <option>Graduate School</option>
-            <option>Administration / Staff</option>
-            <option>Other</option>
+            <option>College of Accountancy</option><option>College of Agriculture</option>
+            <option>College of Arts and Science</option><option>College of Business Administration</option>
+            <option>College of Communication</option><option>College of Informatics and Computing Studies</option>
+            <option>College of Criminology</option><option>College of Education</option>
+            <option>College of Engineering and Architecture</option><option>College of Medical Technology</option>
+            <option>College of Midwifery</option><option>College of Music</option>
+            <option>College of Nursing</option><option>College of Physical Therapy</option>
+            <option>College of Respiratory Therapy</option><option>School of International Relations</option>
+            <option>Graduate School</option><option>Administration / Staff</option><option>Other</option>
           </select>
         </div>
-        <div class="filter-group">
+        <div class="fg">
           <label>Purpose</label>
           <select id="filterPurpose" onchange="loadDashboard()">
             <option value="">All Purposes</option>
-            <option>Borrowing books</option>
-            <option>Returning books</option>
-            <option>Research / Study</option>
-            <option>Using computers</option>
-            <option>Thesis / Capstone work</option>
-            <option>Printing / Photocopying</option>
-            <option>Meeting / Group study</option>
-            <option>Other</option>
+            <option>Borrowing books</option><option>Returning books</option>
+            <option>Research / Study</option><option>Using computers</option>
+            <option>Thesis / Capstone work</option><option>Printing / Photocopying</option>
+            <option>Meeting / Group study</option><option>Other</option>
           </select>
         </div>
-        <div class="filter-group">
-          <label>Visitor Type</label>
+        <div class="fg">
+          <label>Type</label>
           <select id="filterEmployee" onchange="loadDashboard()">
-            <option value="">All Visitors</option>
+            <option value="">All</option>
             <option value="false">Students</option>
             <option value="true">Employees</option>
           </select>
         </div>
       </div>
-      <div class="stats-grid">
-        <div class="stat-card blue"><div class="label">Total Visitors</div><div class="value" id="totalCount">—</div><div class="sub">in selected period</div></div>
-        <div class="stat-card green"><div class="label">Students</div><div class="value" id="studentCount">—</div><div class="sub">non-employee visitors</div></div>
-        <div class="stat-card purple"><div class="label">Employees</div><div class="value" id="employeeCount">—</div><div class="sub">teachers & staff</div></div>
-        <div class="stat-card amber"><div class="label">Top College</div><div class="value" style="font-size:18px;" id="topCollege">—</div><div class="sub">most visits</div></div>
-        <div class="stat-card"><div class="label">Top Purpose</div><div class="value" style="font-size:18px;" id="topPurpose">—</div><div class="sub">most common reason</div></div>
+
+      <div class="stats-row">
+        <div class="stat s-total"><div class="stat-label">Total Visitors</div><div class="stat-value" id="totalCount">—</div><div class="stat-sub">in selected period</div></div>
+        <div class="stat s-student"><div class="stat-label">Students</div><div class="stat-value" id="studentCount">—</div><div class="stat-sub">non-employee visitors</div></div>
+        <div class="stat s-emp"><div class="stat-label">Employees</div><div class="stat-value" id="employeeCount">—</div><div class="stat-sub">teachers & staff</div></div>
+        <div class="stat s-college"><div class="stat-label">Top College</div><div class="stat-value sm" id="topCollege">—</div><div class="stat-sub">most visits</div></div>
+        <div class="stat s-purpose"><div class="stat-label">Top Purpose</div><div class="stat-value sm" id="topPurpose">—</div><div class="stat-sub">most common reason</div></div>
       </div>
     </div>
 
     <!-- VISITOR LOGS -->
     <div class="section" id="section-visitorlogs">
-      <div class="page-header">
-        <div class="page-breadcrumb">Registry</div>
-        <div class="page-title">Visitor Logs</div>
-        <div class="page-subtitle">All visitor entries recorded in the system</div>
-      </div>
-      <div class="filters-bar">
-        <input class="search-bar" id="logSearch" placeholder="Search by name, email, or college…" oninput="filterLogs()"/>
-        <div class="filter-group">
+      <div class="page-head"><div><h1>Visitor Logs</h1><p>All recorded visit entries</p></div></div>
+      <div class="filter-bar">
+        <input class="search-input" id="logSearch" placeholder="Search name, email, college…" oninput="filterLogs()"/>
+        <div class="fg">
           <label>College</label>
           <select id="logCollege" onchange="filterLogs()">
             <option value="">All Colleges</option>
-            <option>College of Accountancy</option>
-            <option>College of Agriculture</option>
-            <option>College of Arts and Science</option>
-            <option>College of Business Administration</option>
-            <option>College of Communication</option>
-            <option>College of Informatics and Computing Studies</option>
-            <option>College of Criminology</option>
-            <option>College of Education</option>
-            <option>College of Engineering and Architecture</option>
-            <option>College of Medical Technology</option>
-            <option>College of Midwifery</option>
-            <option>College of Music</option>
-            <option>College of Nursing</option>
-            <option>College of Physical Therapy</option>
-            <option>College of Respiratory Therapy</option>
-            <option>School of International Relations</option>
-            <option>Graduate School</option>
-            <option>Administration / Staff</option>
-            <option>Other</option>
+            <option>College of Accountancy</option><option>College of Agriculture</option>
+            <option>College of Arts and Science</option><option>College of Business Administration</option>
+            <option>College of Communication</option><option>College of Informatics and Computing Studies</option>
+            <option>College of Criminology</option><option>College of Education</option>
+            <option>College of Engineering and Architecture</option><option>College of Medical Technology</option>
+            <option>College of Midwifery</option><option>College of Music</option>
+            <option>College of Nursing</option><option>College of Physical Therapy</option>
+            <option>College of Respiratory Therapy</option><option>School of International Relations</option>
+            <option>Graduate School</option><option>Administration / Staff</option><option>Other</option>
           </select>
         </div>
-        <div class="filter-group">
+        <div class="fg">
           <label>Type</label>
           <select id="logType" onchange="filterLogs()">
-            <option value="">All Types</option>
-            <option value="false">Student</option>
-            <option value="true">Employee</option>
+            <option value="">All</option><option value="false">Student</option><option value="true">Employee</option>
           </select>
         </div>
         <button class="btn-export" onclick="exportCSV()">↓ Export CSV</button>
       </div>
-      <div class="table-card">
-        <div class="table-header">
-          <span class="table-title">Visitor Log</span>
-          <span class="table-count" id="logCount">0 records</span>
-        </div>
+      <div class="table-wrap">
+        <div class="table-head-bar"><h3>Visit Records</h3><span class="record-count" id="logCount">0 records</span></div>
         <div style="overflow-x:auto;">
           <table>
             <thead><tr><th>Visitor</th><th>College</th><th>Purpose</th><th>Type</th><th>Date & Time</th></tr></thead>
@@ -278,53 +361,34 @@
 
     <!-- USER MANAGEMENT -->
     <div class="section" id="section-usermanagement">
-      <div class="page-header">
-        <div class="page-breadcrumb">Registry</div>
-        <div class="page-title">User Management</div>
-        <div class="page-subtitle">Manage visitor accounts and access</div>
-      </div>
-      <div class="filters-bar">
-        <input class="search-bar" id="userSearch" placeholder="Search by name, email, or college…" oninput="filterUsers()"/>
-        <div class="filter-group">
+      <div class="page-head"><div><h1>Users</h1><p>Manage visitor accounts and access</p></div></div>
+      <div class="filter-bar">
+        <input class="search-input" id="userSearch" placeholder="Search name, email, college…" oninput="filterUsers()"/>
+        <div class="fg">
           <label>College</label>
           <select id="userCollege" onchange="filterUsers()">
             <option value="">All Colleges</option>
-            <option>College of Accountancy</option>
-            <option>College of Agriculture</option>
-            <option>College of Arts and Science</option>
-            <option>College of Business Administration</option>
-            <option>College of Communication</option>
-            <option>College of Informatics and Computing Studies</option>
-            <option>College of Criminology</option>
-            <option>College of Education</option>
-            <option>College of Engineering and Architecture</option>
-            <option>College of Medical Technology</option>
-            <option>College of Midwifery</option>
-            <option>College of Music</option>
-            <option>College of Nursing</option>
-            <option>College of Physical Therapy</option>
-            <option>College of Respiratory Therapy</option>
-            <option>School of International Relations</option>
-            <option>Graduate School</option>
-            <option>Administration / Staff</option>
-            <option>Other</option>
+            <option>College of Accountancy</option><option>College of Agriculture</option>
+            <option>College of Arts and Science</option><option>College of Business Administration</option>
+            <option>College of Communication</option><option>College of Informatics and Computing Studies</option>
+            <option>College of Criminology</option><option>College of Education</option>
+            <option>College of Engineering and Architecture</option><option>College of Medical Technology</option>
+            <option>College of Midwifery</option><option>College of Music</option>
+            <option>College of Nursing</option><option>College of Physical Therapy</option>
+            <option>College of Respiratory Therapy</option><option>School of International Relations</option>
+            <option>Graduate School</option><option>Administration / Staff</option><option>Other</option>
           </select>
         </div>
-        <div class="filter-group">
+        <div class="fg">
           <label>Type</label>
           <select id="userType" onchange="filterUsers()">
-            <option value="">All Types</option>
-            <option value="false">Student</option>
-            <option value="true">Employee</option>
+            <option value="">All</option><option value="false">Student</option><option value="true">Employee</option>
           </select>
         </div>
-        <button class="btn-export" onclick="exportUsersCSV()">↓ Export Users CSV</button>
+        <button class="btn-export" onclick="exportUsersCSV()">↓ Export CSV</button>
       </div>
-      <div class="table-card">
-        <div class="table-header">
-          <span class="table-title">All Visitors</span>
-          <span class="table-count" id="userCount">0 users</span>
-        </div>
+      <div class="table-wrap">
+        <div class="table-head-bar"><h3>All Visitors</h3><span class="record-count" id="userCount">0 users</span></div>
         <div style="overflow-x:auto;">
           <table>
             <thead><tr><th>Visitor</th><th>College</th><th>Type</th><th>Status</th><th>Action</th></tr></thead>
@@ -344,7 +408,7 @@
 
     function showSection(name, el) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+      document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'))
       document.getElementById('section-' + name).classList.add('active')
       el.classList.add('active')
       if (name === 'visitorlogs') loadLogs()
@@ -359,8 +423,6 @@
       if (error || !roleData || roleData.role !== 'admin') { await sb.auth.signOut(); window.location.href = 'admin-login.html'; return }
       document.getElementById('adminEmail').textContent = email
       document.getElementById('adminAvatar').textContent = email.charAt(0).toUpperCase()
-      const now = new Date()
-      document.getElementById('statusInfo').textContent = 'Checked · ' + now.toLocaleDateString('en-PH', { month:'short', day:'numeric' }) + ' · ' + now.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' })
       loadDashboard()
     }
 
@@ -370,7 +432,7 @@
       if (range === 'today') { start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) }
       else if (range === 'week') { start = new Date(now); start.setDate(now.getDate() - now.getDay()); start.setHours(0,0,0,0); end = new Date(start); end.setDate(start.getDate() + 7) }
       else if (range === 'month') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 1) }
-      else if (range === 'custom') { const s = document.getElementById('startDate').value; const e = document.getElementById('endDate').value; if (!s || !e) return null; start = new Date(s); end = new Date(e); end.setDate(end.getDate() + 1) }
+      else { const s = document.getElementById('startDate').value; const e = document.getElementById('endDate').value; if (!s || !e) return null; start = new Date(s); end = new Date(e); end.setDate(end.getDate() + 1) }
       return { start: start.toISOString(), end: end.toISOString() }
     }
 
@@ -391,16 +453,16 @@
       if (purpose) query = query.eq('purpose', purpose)
       if (employee !== '') query = query.eq('is_employee', employee === 'true')
       const { data, error } = await query; if (error) return
-      const total = data.length, employees = data.filter(v => v.is_employee).length
+      const total = data.length, emps = data.filter(v => v.is_employee).length
       const cc = {}; data.forEach(v => { cc[v.college] = (cc[v.college]||0)+1 })
       const pc = {}; data.forEach(v => { pc[v.purpose] = (pc[v.purpose]||0)+1 })
       document.getElementById('totalCount').textContent = total
-      document.getElementById('studentCount').textContent = total - employees
-      document.getElementById('employeeCount').textContent = employees
+      document.getElementById('studentCount').textContent = total - emps
+      document.getElementById('employeeCount').textContent = emps
       document.getElementById('topCollege').textContent = (Object.entries(cc).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—').replace('College of ','').replace('School of ','')
       document.getElementById('topPurpose').textContent = Object.entries(pc).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—'
       const labels = { today:'Today', week:'This Week', month:'This Month', custom:'Custom Range' }
-      document.getElementById('dashSubtitle').textContent = 'Showing stats for: ' + labels[document.getElementById('timeRange').value]
+      document.getElementById('dashSubtitle').textContent = 'Showing data for: ' + labels[document.getElementById('timeRange').value]
     }
 
     async function loadLogs() {
@@ -409,23 +471,23 @@
     }
 
     function filterLogs() {
-      const search = document.getElementById('logSearch').value.toLowerCase()
-      const college = document.getElementById('logCollege').value
-      const type = document.getElementById('logType').value
+      const s = document.getElementById('logSearch').value.toLowerCase()
+      const c = document.getElementById('logCollege').value
+      const t = document.getElementById('logType').value
       renderLogs(allVisitors.filter(v => {
-        const ms = !search || v.name?.toLowerCase().includes(search) || v.email?.toLowerCase().includes(search) || v.college?.toLowerCase().includes(search)
-        return ms && (!college || v.college === college) && (type === '' || String(v.is_employee) === type)
+        const ms = !s || v.name?.toLowerCase().includes(s) || v.email?.toLowerCase().includes(s) || v.college?.toLowerCase().includes(s)
+        return ms && (!c || v.college === c) && (t === '' || String(v.is_employee) === t)
       }))
     }
 
     function renderLogs(data) {
       document.getElementById('logCount').textContent = data.length + ' records'
       const tbody = document.getElementById('logTableBody')
-      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No visitor logs found.</td></tr>'; return }
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No records found.</td></tr>'; return }
       tbody.innerHTML = data.map(v => {
         const date = new Date(v.visited_at).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })
-        const badge = v.is_employee ? `<span class="badge badge-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge badge-student">Student</span>`
-        return `<tr><td><span class="visitor-avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="visitor-name">${v.name}</div><div class="visitor-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${v.purpose}</td><td>${badge}</td><td>${date}</td></tr>`
+        const badge = v.is_employee ? `<span class="badge b-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge b-student">Student</span>`
+        return `<tr><td><span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="vis-name">${v.name}</div><div class="vis-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${v.purpose}</td><td>${badge}</td><td>${date}</td></tr>`
       }).join('')
     }
 
@@ -438,12 +500,12 @@
     }
 
     function filterUsers() {
-      const search = document.getElementById('userSearch').value.toLowerCase()
-      const college = document.getElementById('userCollege').value
-      const type = document.getElementById('userType').value
+      const s = document.getElementById('userSearch').value.toLowerCase()
+      const c = document.getElementById('userCollege').value
+      const t = document.getElementById('userType').value
       renderUsers(allUsers.filter(v => {
-        const ms = !search || v.name?.toLowerCase().includes(search) || v.email?.toLowerCase().includes(search) || v.college?.toLowerCase().includes(search)
-        return ms && (!college || v.college === college) && (type === '' || String(v.is_employee) === type)
+        const ms = !s || v.name?.toLowerCase().includes(s) || v.email?.toLowerCase().includes(s) || v.college?.toLowerCase().includes(s)
+        return ms && (!c || v.college === c) && (t === '' || String(v.is_employee) === t)
       }))
     }
 
@@ -453,10 +515,10 @@
       if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No users found.</td></tr>'; return }
       tbody.innerHTML = data.map(v => {
         const isBlocked = blockedEmails.includes(v.email)
-        const typeBadge = v.is_employee ? `<span class="badge badge-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge badge-student">Student</span>`
-        const statusBadge = isBlocked ? `<span class="badge badge-blocked">Blocked</span>` : `<span class="badge badge-active">Active</span>`
+        const typeBadge = v.is_employee ? `<span class="badge b-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge b-student">Student</span>`
+        const statusBadge = isBlocked ? `<span class="badge b-blocked">Blocked</span>` : `<span class="badge b-active">Active</span>`
         const actionBtn = isBlocked ? `<button class="btn-unblock" onclick="toggleBlock('${v.email}', false)">Unblock</button>` : `<button class="btn-block" onclick="toggleBlock('${v.email}', true)">Block</button>`
-        return `<tr><td><span class="visitor-avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="visitor-name">${v.name}</div><div class="visitor-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${typeBadge}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`
+        return `<tr><td><span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="vis-name">${v.name}</div><div class="vis-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${typeBadge}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`
       }).join('')
     }
 
