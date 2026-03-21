@@ -7,17 +7,26 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
+  <div class="card-page">
     <div class="card" style="text-align:center;">
-      <h1>Admin Login</h1>
-      <p>Sign in with your authorized Google account to access the admin dashboard.</p>
+      <div class="card-logo-wrap">
+        <img src="neweralogo.png" alt="NEU Library" class="card-logo"/>
+      </div>
+      <h1>Admin Portal</h1>
+      <p class="card-subtitle">Sign in with your authorized Google account to access the admin dashboard.</p>
+
       <button class="btn-google" id="adminLoginBtn">
         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"/>
-        Sign in with Google
+        Continue with Google
       </button>
+
       <p class="error-msg" id="errorMsg"></p>
-      <br/>
-      <a href="index.html" style="font-size:13px; color:#888;">← Back to home</a>
+
+      <div style="margin-top:28px; padding-top:24px; border-top:1px solid var(--border);">
+        <a href="index.html" style="font-size:13px; color:var(--text-muted); text-decoration:none;">
+          ← Back to home
+        </a>
+      </div>
     </div>
   </div>
 
@@ -27,13 +36,9 @@
     document.getElementById('adminLoginBtn').addEventListener('click', async () => {
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: 'https://neu-library.netlify.app/admin.html'
-        }
+        options: { redirectTo: 'https://neu-library.netlify.app/admin.html' }
       })
-      if (error) {
-        document.getElementById('errorMsg').textContent = error.message
-      }
+      if (error) document.getElementById('errorMsg').textContent = error.message
     })
 
     async function checkIfAlreadyAdmin() {
@@ -41,9 +46,7 @@
       if (!session) return
       const { data: roleData } = await sb.from('user_roles')
         .select('role').eq('email', session.user.email).single()
-      if (roleData?.role === 'admin') {
-        window.location.href = 'admin.html'
-      }
+      if (roleData?.role === 'admin') window.location.href = 'admin.html'
     }
 
     checkIfAlreadyAdmin()

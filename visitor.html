@@ -7,11 +7,23 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div style="display:flex; align-items:center; justify-content:center; min-height:100vh; padding: 20px;">
+  <div class="card-page">
     <div class="card">
-      <h1>Visitor Log</h1>
-      <p id="visitorEmail" style="color:#4f8ef7; font-weight:600; margin-bottom:4px;"></p>
-      <p>Please fill in your visit details below.</p>
+      <div class="card-logo-wrap">
+        <img src="neweralogo.png" alt="NEU Library" class="card-logo"/>
+      </div>
+      <h1>Log Your Visit</h1>
+      <p class="card-subtitle">Please fill in your visit details below.</p>
+
+      <div style="text-align:center; margin-bottom:20px;">
+        <span class="visitor-email-badge" id="visitorEmail" style="display:none;">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span id="visitorEmailText"></span>
+        </span>
+      </div>
 
       <div class="form-group">
         <label>Full Name</label>
@@ -21,14 +33,23 @@
       <div class="form-group">
         <label>College / Department</label>
         <select id="college">
-          <option value="">-- Select College --</option>
-          <option>College of Engineering</option>
-          <option>College of Business and Accountancy</option>
-          <option>College of Arts and Sciences</option>
+          <option value="">— Select College —</option>
+          <option>College of Accountancy</option>
+          <option>College of Agriculture</option>
+          <option>College of Arts and Science</option>
+          <option>College of Business Administration</option>
+          <option>College of Communication</option>
+          <option>College of Informatics and Computing Studies</option>
+          <option>College of Criminology</option>
           <option>College of Education</option>
-          <option>College of Computing Studies</option>
-          <option>College of Criminal Justice</option>
+          <option>College of Engineering and Architecture</option>
+          <option>College of Medical Technology</option>
+          <option>College of Midwifery</option>
+          <option>College of Music</option>
           <option>College of Nursing</option>
+          <option>College of Physical Therapy</option>
+          <option>College of Respiratory Therapy</option>
+          <option>School of International Relations</option>
           <option>Graduate School</option>
           <option>Administration / Staff</option>
           <option>Other</option>
@@ -38,7 +59,7 @@
       <div class="form-group">
         <label>Purpose of Visit</label>
         <select id="purpose">
-          <option value="">-- Select Purpose --</option>
+          <option value="">— Select Purpose —</option>
           <option>Borrowing books</option>
           <option>Returning books</option>
           <option>Research / Study</option>
@@ -58,7 +79,7 @@
       <div class="form-group" id="employeeTypeGroup" style="display:none;">
         <label>Employee Type</label>
         <select id="employeeType">
-          <option value="">-- Select Type --</option>
+          <option value="">— Select Type —</option>
           <option>Teacher / Faculty</option>
           <option>Staff</option>
         </select>
@@ -75,24 +96,21 @@
   <script>
     async function init() {
       const { data: { session } } = await sb.auth.getSession()
-
       if (!session) {
         await sb.auth.signInWithOAuth({
           provider: 'google',
-          options: {
-            redirectTo: 'https://neu-library.netlify.app/visitor.html'
-          }
+          options: { redirectTo: 'https://neu-library.netlify.app/visitor.html' }
         })
         return
       }
-
       window.currentSession = session
-      document.getElementById('visitorEmail').textContent = session.user.email
+      const emailBadge = document.getElementById('visitorEmail')
+      emailBadge.style.display = 'inline-flex'
+      document.getElementById('visitorEmailText').textContent = session.user.email
     }
 
     document.getElementById('isEmployee').addEventListener('change', function() {
-      document.getElementById('employeeTypeGroup').style.display =
-        this.checked ? 'block' : 'none'
+      document.getElementById('employeeTypeGroup').style.display = this.checked ? 'block' : 'none'
     })
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
@@ -102,11 +120,7 @@
       successMsg.textContent = ''
 
       const { data: { session } } = await sb.auth.getSession()
-
-      if (!session) {
-        errorMsg.textContent = 'Session expired. Please refresh and log in again.'
-        return
-      }
+      if (!session) { errorMsg.textContent = 'Session expired. Please refresh and log in again.'; return }
 
       const name = document.getElementById('name').value.trim()
       const college = document.getElementById('college').value
@@ -114,35 +128,15 @@
       const isEmployee = document.getElementById('isEmployee').checked
       const employeeType = document.getElementById('employeeType').value
 
-      if (!name || !college || !purpose) {
-        errorMsg.textContent = 'Please fill in all required fields.'
-        return
-      }
+      if (!name || !college || !purpose) { errorMsg.textContent = 'Please fill in all required fields.'; return }
+      if (isEmployee && !employeeType) { errorMsg.textContent = 'Please select your employee type.'; return }
 
-      if (isEmployee && !employeeType) {
-        errorMsg.textContent = 'Please select your employee type.'
-        return
-      }
-
-      console.log('Inserting visitor:', { name, college, purpose, isEmployee })
-
-      const { data, error } = await sb.from('visitors').insert({
-        name,
-        email: session.user.email,
-        college,
-        purpose,
-        is_employee: isEmployee,
-        employee_type: isEmployee ? employeeType : null
+      const { error } = await sb.from('visitors').insert({
+        name, email: session.user.email, college, purpose,
+        is_employee: isEmployee, employee_type: isEmployee ? employeeType : null
       })
 
-      console.log('Insert result:', data, error)
-
-      if (error) {
-        errorMsg.textContent = 'Error: ' + error.message
-        console.error('Supabase error:', error)
-        return
-      }
-
+      if (error) { errorMsg.textContent = 'Error: ' + error.message; return }
       window.location.href = 'user.html'
     })
 

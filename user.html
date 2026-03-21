@@ -7,19 +7,24 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
+  <div class="card-page">
     <div class="card" style="text-align:center;">
       <div class="welcome-box">
-        <h2>Welcome to NEU Library!</h2>
-        <p id="userName"></p>
-        <p style="margin-top:8px; font-size:13px;">Your visit has been logged successfully.</p>
+        <div class="check-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2>Welcome!</h2>
+        <p id="userName" style="font-weight:600; font-size:15px; margin-bottom:4px;"></p>
+        <p>Your visit has been logged successfully.</p>
       </div>
-      <br/>
-      <a href="visitor.html" class="btn-submit" style="display:block; text-decoration:none; text-align:center;">
+
+      <a href="visitor.html" class="btn-submit" style="display:block; text-decoration:none; text-align:center; margin-bottom:14px;">
         Log Another Visit
       </a>
-      <br/>
-      <button onclick="logout()" style="background:none; border:none; color:#888; cursor:pointer; font-size:13px;">
+
+      <button onclick="logout()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px; font-family:'DM Sans',sans-serif; padding:4px 8px;">
         Sign Out
       </button>
     </div>
@@ -30,10 +35,7 @@
   <script>
     async function loadUser() {
       const { data: { session } } = await sb.auth.getSession()
-      if (!session) {
-        window.location.href = 'index.html'
-        return
-      }
+      if (!session) { window.location.href = 'index.html'; return }
       const name = session.user.user_metadata?.full_name || session.user.email
       document.getElementById('userName').textContent = name
     }
