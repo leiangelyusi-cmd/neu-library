@@ -3,50 +3,287 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEU Library – Admin Login</title>
+  <title>NEU Library – Admin Dashboard</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
-    <div class="card" style="text-align:center;">
-      <h1>Admin Login</h1>
-      <p>Sign in with your authorized Google account to access the admin dashboard.</p>
-      <button class="btn-google" id="adminLoginBtn">
-        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"/>
-        Sign in with Google
-      </button>
-      <p class="error-msg" id="errorMsg"></p>
-      <br/>
-      <a href="index.html" style="font-size:13px; color:#888;">← Back to home</a>
+
+  <div class="admin-header">
+    <h1>NEU Library — Admin Dashboard</h1>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span id="adminEmail" style="font-size:13px; opacity:0.7;"></span>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
     </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- Date Range Filters -->
+    <div class="filters">
+      <label>
+        Time Range
+        <select id="timeRange" onchange="handleTimeRange()">
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </label>
+
+      <label id="startLabel" style="display:none;">
+        From
+        <input type="date" id="startDate" onchange="loadStats()"/>
+      </label>
+
+      <label id="endLabel" style="display:none;">
+        To
+        <input type="date" id="endDate" onchange="loadStats()"/>
+      </label>
+
+      <label>
+        College / Department
+        <select id="filterCollege" onchange="loadStats()">
+          <option value="">All Colleges</option>
+          <option>College of Engineering</option>
+          <option>College of Business and Accountancy</option>
+          <option>College of Arts and Sciences</option>
+          <option>College of Education</option>
+          <option>College of Computing Studies</option>
+          <option>College of Criminal Justice</option>
+          <option>College of Nursing</option>
+          <option>Graduate School</option>
+          <option>Administration / Staff</option>
+          <option>Other</option>
+        </select>
+      </label>
+
+      <label>
+        Purpose
+        <select id="filterPurpose" onchange="loadStats()">
+          <option value="">All Purposes</option>
+          <option>Borrowing books</option>
+          <option>Returning books</option>
+          <option>Research / Study</option>
+          <option>Using computers</option>
+          <option>Thesis / Capstone work</option>
+          <option>Printing / Photocopying</option>
+          <option>Meeting / Group study</option>
+          <option>Other</option>
+        </select>
+      </label>
+
+      <label>
+        Visitor Type
+        <select id="filterEmployee" onchange="loadStats()">
+          <option value="">All Visitors</option>
+          <option value="false">Students</option>
+          <option value="true">Employees</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3 id="totalCount">—</h3>
+        <p>Total Visitors</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="employeeCount">—</h3>
+        <p>Employees</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="studentCount">—</h3>
+        <p>Students</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="topCollege">—</h3>
+        <p>Top College</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="topPurpose">—</h3>
+        <p>Top Purpose</p>
+      </div>
+    </div>
+
+    <!-- Visitor Log Table -->
+    <div style="background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.07); overflow:hidden;">
+      <div style="padding:20px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-size:16px; color:#1a1a2e;">Visitor Log</h2>
+        <span id="tableCount" style="font-size:13px; color:#888;"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="visitorTable" style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8f9fa;">
+              <th style="padding:12px 16px; text-align:left; font-size:13px; color:#666; font-weight:600;">Name</th>
+              <th style="padding:12px 16px; text-align:left; font-size:13px; color:#666; font-weight:600;">Email</th>
+              <th style="padding:12px 16px; text-align:left; font-size:13px; color:#666; font-weight:600;">College</th>
+              <th style="padding:12px 16px; text-align:left; font-size:13px; color:#666; font-weight:600;">Purpose</th>
+              <th style="padding:12px 16px; text-align:left; font-size:13px; color:#666; font-weight:600;">Type</th>
+              <th style="padding:12px 16px; text-align:left; font-size:13px; color:#666; font-weight:600;">Date & Time</th>
+            </tr>
+          </thead>
+          <tbody id="visitorTableBody">
+            <tr>
+              <td colspan="6" style="padding:40px; text-align:center; color:#aaa;">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script>
-    document.getElementById('adminLoginBtn').addEventListener('click', async () => {
-      const { error } = await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: 'https://neu-library.netlify.app/admin.html'
-        }
-      })
-      if (error) {
-        document.getElementById('errorMsg').textContent = error.message
-      }
-    })
-
-    async function checkIfAlreadyAdmin() {
+    async function checkAdmin() {
       const { data: { session } } = await sb.auth.getSession()
-      if (!session) return
+      if (!session) { window.location.href = 'index.html'; return }
+
       const { data: roleData } = await sb.from('user_roles')
         .select('role').eq('email', session.user.email).single()
-      if (roleData?.role === 'admin') {
-        window.location.href = 'admin.html'
+
+      if (roleData?.role !== 'admin') {
+        window.location.href = 'user.html'
+        return
       }
+
+      document.getElementById('adminEmail').textContent = session.user.email
+      loadStats()
     }
 
-    checkIfAlreadyAdmin()
+    function getDateRange() {
+      const range = document.getElementById('timeRange').value
+      const now = new Date()
+      let start, end
+
+      if (range === 'today') {
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+      } else if (range === 'week') {
+        const day = now.getDay()
+        start = new Date(now)
+        start.setDate(now.getDate() - day)
+        start.setHours(0,0,0,0)
+        end = new Date(start)
+        end.setDate(start.getDate() + 7)
+      } else if (range === 'month') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1)
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+      } else if (range === 'custom') {
+        const s = document.getElementById('startDate').value
+        const e = document.getElementById('endDate').value
+        if (!s || !e) return null
+        start = new Date(s)
+        end = new Date(e)
+        end.setDate(end.getDate() + 1)
+      }
+
+      return { start: start.toISOString(), end: end.toISOString() }
+    }
+
+    function handleTimeRange() {
+      const range = document.getElementById('timeRange').value
+      const isCustom = range === 'custom'
+      document.getElementById('startLabel').style.display = isCustom ? 'flex' : 'none'
+      document.getElementById('endLabel').style.display = isCustom ? 'flex' : 'none'
+      if (!isCustom) loadStats()
+    }
+
+    async function loadStats() {
+      const dates = getDateRange()
+      if (!dates) return
+
+      const college = document.getElementById('filterCollege').value
+      const purpose = document.getElementById('filterPurpose').value
+      const employee = document.getElementById('filterEmployee').value
+
+      let query = sb.from('visitors')
+        .select('*')
+        .gte('visited_at', dates.start)
+        .lt('visited_at', dates.end)
+        .order('visited_at', { ascending: false })
+
+      if (college) query = query.eq('college', college)
+      if (purpose) query = query.eq('purpose', purpose)
+      if (employee !== '') query = query.eq('is_employee', employee === 'true')
+
+      const { data, error } = await query
+
+      if (error) {
+        console.error('Error loading stats:', error)
+        return
+      }
+
+      // Stats
+      const total = data.length
+      const employees = data.filter(v => v.is_employee).length
+      const students = total - employees
+
+      // Top college
+      const collegeCounts = {}
+      data.forEach(v => {
+        collegeCounts[v.college] = (collegeCounts[v.college] || 0) + 1
+      })
+      const topCollege = Object.entries(collegeCounts)
+        .sort((a,b) => b[1] - a[1])[0]?.[0] || '—'
+
+      // Top purpose
+      const purposeCounts = {}
+      data.forEach(v => {
+        purposeCounts[v.purpose] = (purposeCounts[v.purpose] || 0) + 1
+      })
+      const topPurpose = Object.entries(purposeCounts)
+        .sort((a,b) => b[1] - a[1])[0]?.[0] || '—'
+
+      // Update cards
+      document.getElementById('totalCount').textContent = total
+      document.getElementById('employeeCount').textContent = employees
+      document.getElementById('studentCount').textContent = students
+      document.getElementById('topCollege').textContent =
+        topCollege.replace('College of ', '') || '—'
+      document.getElementById('topPurpose').textContent = topPurpose
+
+      // Update table
+      document.getElementById('tableCount').textContent = total + ' records'
+      const tbody = document.getElementById('visitorTableBody')
+
+      if (data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="padding:40px; text-align:center; color:#aaa;">
+              No visitors found for this period.
+            </td>
+          </tr>`
+        return
+      }
+
+      tbody.innerHTML = data.map(v => {
+        const date = new Date(v.visited_at)
+        const formatted = date.toLocaleDateString('en-PH', {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        })
+        const type = v.is_employee
+          ? `<span style="background:#e3f2fd; color:#1565c0; padding:3px 10px; border-radius:20px; font-size:12px;">${v.employee_type || 'Employee'}</span>`
+          : `<span style="background:#e8f5e9; color:#2e7d32; padding:3px 10px; border-radius:20px; font-size:12px;">Student</span>`
+
+        return `
+          <tr style="border-top:1px solid #f5f5f5;">
+            <td style="padding:14px 16px; font-size:14px; color:#333;">${v.name}</td>
+            <td style="padding:14px 16px; font-size:13px; color:#888;">${v.email || '—'}</td>
+            <td style="padding:14px 16px; font-size:13px; color:#555;">${v.college}</td>
+            <td style="padding:14px 16px; font-size:13px; color:#555;">${v.purpose}</td>
+            <td style="padding:14px 16px;">${type}</td>
+            <td style="padding:14px 16px; font-size:13px; color:#888;">${formatted}</td>
+          </tr>`
+      }).join('')
+    }
+
+    checkAdmin()
   </script>
+
 </body>
 </html>
