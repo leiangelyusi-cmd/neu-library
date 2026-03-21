@@ -7,30 +7,27 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="card-page">
+  <div class="page">
     <div class="card">
-      <div class="card-logo-wrap">
-        <img src="neweralogo.png" alt="NEU Library" class="card-logo"/>
-      </div>
-      <h1>Log Your Visit</h1>
-      <p class="card-subtitle">Please fill in your visit details below.</p>
-
-      <div style="text-align:center; margin-bottom:20px;">
-        <span class="visitor-email-badge" id="visitorEmail" style="display:none;">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          <span id="visitorEmailText"></span>
-        </span>
+      <div class="card-top">
+        <img src="neweralogo.png" alt="NEU"/>
+        <div>
+          <h1>Log Your Visit</h1>
+          <p>NEU Library · Visitor Management</p>
+        </div>
       </div>
 
-      <div class="form-group">
+      <div class="email-badge" id="emailBadge" style="display:none;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span id="emailText"></span>
+      </div>
+
+      <div class="fg">
         <label>Full Name</label>
         <input type="text" id="name" placeholder="Enter your full name"/>
       </div>
 
-      <div class="form-group">
+      <div class="fg">
         <label>College / Department</label>
         <select id="college">
           <option value="">— Select College —</option>
@@ -56,7 +53,7 @@
         </select>
       </div>
 
-      <div class="form-group">
+      <div class="fg">
         <label>Purpose of Visit</label>
         <select id="purpose">
           <option value="">— Select Purpose —</option>
@@ -71,12 +68,12 @@
         </select>
       </div>
 
-      <div class="form-group checkbox">
+      <div class="checkbox-row">
         <input type="checkbox" id="isEmployee"/>
         <label for="isEmployee">I am an employee (teacher or staff)</label>
       </div>
 
-      <div class="form-group" id="employeeTypeGroup" style="display:none;">
+      <div class="fg" id="employeeTypeGroup" style="display:none;">
         <label>Employee Type</label>
         <select id="employeeType">
           <option value="">— Select Type —</option>
@@ -85,9 +82,9 @@
         </select>
       </div>
 
-      <button class="btn-submit" id="submitBtn">Log My Visit</button>
-      <p class="error-msg" id="errorMsg"></p>
-      <p class="success-msg" id="successMsg"></p>
+      <button class="btn-primary full" id="submitBtn">Log My Visit</button>
+      <div class="msg error" id="errorMsg"></div>
+      <div class="msg success" id="successMsg"></div>
     </div>
   </div>
 
@@ -97,16 +94,13 @@
     async function init() {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) {
-        await sb.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: 'https://neu-library.netlify.app/visitor.html' }
-        })
+        await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://neu-library.netlify.app/visitor.html' } })
         return
       }
       window.currentSession = session
-      const emailBadge = document.getElementById('visitorEmail')
-      emailBadge.style.display = 'inline-flex'
-      document.getElementById('visitorEmailText').textContent = session.user.email
+      const badge = document.getElementById('emailBadge')
+      badge.style.display = 'inline-flex'
+      document.getElementById('emailText').textContent = session.user.email
     }
 
     document.getElementById('isEmployee').addEventListener('change', function() {
@@ -114,13 +108,12 @@
     })
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
-      const errorMsg = document.getElementById('errorMsg')
-      const successMsg = document.getElementById('successMsg')
-      errorMsg.textContent = ''
-      successMsg.textContent = ''
+      const err = document.getElementById('errorMsg')
+      const suc = document.getElementById('successMsg')
+      err.textContent = ''; suc.textContent = ''
 
       const { data: { session } } = await sb.auth.getSession()
-      if (!session) { errorMsg.textContent = 'Session expired. Please refresh and log in again.'; return }
+      if (!session) { err.textContent = 'Session expired. Please refresh and log in again.'; return }
 
       const name = document.getElementById('name').value.trim()
       const college = document.getElementById('college').value
@@ -128,15 +121,15 @@
       const isEmployee = document.getElementById('isEmployee').checked
       const employeeType = document.getElementById('employeeType').value
 
-      if (!name || !college || !purpose) { errorMsg.textContent = 'Please fill in all required fields.'; return }
-      if (isEmployee && !employeeType) { errorMsg.textContent = 'Please select your employee type.'; return }
+      if (!name || !college || !purpose) { err.textContent = 'Please fill in all required fields.'; return }
+      if (isEmployee && !employeeType) { err.textContent = 'Please select your employee type.'; return }
 
       const { error } = await sb.from('visitors').insert({
         name, email: session.user.email, college, purpose,
         is_employee: isEmployee, employee_type: isEmployee ? employeeType : null
       })
 
-      if (error) { errorMsg.textContent = 'Error: ' + error.message; return }
+      if (error) { err.textContent = 'Error: ' + error.message; return }
       window.location.href = 'user.html'
     })
 

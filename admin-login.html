@@ -7,26 +7,24 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="card-page">
-    <div class="card" style="text-align:center;">
-      <div class="card-logo-wrap">
-        <img src="neweralogo.png" alt="NEU Library" class="card-logo"/>
-      </div>
-      <h1>Admin Portal</h1>
-      <p class="card-subtitle">Sign in with your authorized Google account to access the admin dashboard.</p>
+  <div class="page">
+    <div class="card sm">
+      <img src="neweralogo.png" alt="NEU" style="width:52px; height:52px; margin-bottom:20px;"/>
+      <h1 class="serif">Admin Portal</h1>
+      <p class="subtitle">Sign in with your authorized Google account to access the admin dashboard.</p>
 
       <button class="btn-google" id="adminLoginBtn">
         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"/>
         Continue with Google
       </button>
 
-      <p class="error-msg" id="errorMsg"></p>
+      <div class="msg error" id="errorMsg"></div>
 
-      <div style="margin-top:28px; padding-top:24px; border-top:1px solid var(--border);">
-        <a href="index.html" style="font-size:13px; color:var(--text-muted); text-decoration:none;">
-          ← Back to home
-        </a>
-      </div>
+      <div class="divider"></div>
+      <a href="index.html" class="back-link">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to home
+      </a>
     </div>
   </div>
 
@@ -44,8 +42,7 @@
     async function checkIfAlreadyAdmin() {
       const { data: { session } } = await sb.auth.getSession()
       if (!session) return
-      const { data: roleData } = await sb.from('user_roles')
-        .select('role').eq('email', session.user.email).single()
+      const { data: roleData } = await sb.from('user_roles').select('role').eq('email', session.user.email).single()
       if (roleData?.role === 'admin') window.location.href = 'admin.html'
     }
 
