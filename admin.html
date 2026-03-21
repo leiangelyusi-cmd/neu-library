@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NEU Library – Admin</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap"/>
-<link rel="stylesheet" href="style.css"/>
-    
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
@@ -43,7 +42,8 @@
     </div>
   </nav>
 
-  <div class="page">
+  <!-- FIX: Changed from .page to .admin-body to avoid conflict with login page styles -->
+  <div class="admin-body">
 
     <!-- DASHBOARD -->
     <div class="section active" id="section-dashboard">
@@ -188,7 +188,7 @@
       </div>
     </div>
 
-  </div>
+  </div><!-- end .admin-body -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
@@ -277,7 +277,21 @@
       tbody.innerHTML = data.map(v => {
         const date = new Date(v.visited_at).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })
         const badge = v.is_employee ? `<span class="badge b-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge b-student">Student</span>`
-        return `<tr><td><span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="vis-name">${v.name}</div><div class="vis-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${v.purpose}</td><td>${badge}</td><td>${date}</td></tr>`
+        return `<tr>
+          <td>
+            <div class="cell-visitor">
+              <span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span>
+              <span>
+                <div class="vis-name">${v.name}</div>
+                <div class="vis-email">${v.email||''}</div>
+              </span>
+            </div>
+          </td>
+          <td>${v.college}</td>
+          <td>${v.purpose}</td>
+          <td>${badge}</td>
+          <td>${date}</td>
+        </tr>`
       }).join('')
     }
 
@@ -308,7 +322,21 @@
         const typeBadge = v.is_employee ? `<span class="badge b-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge b-student">Student</span>`
         const statusBadge = isBlocked ? `<span class="badge b-blocked">Blocked</span>` : `<span class="badge b-active">Active</span>`
         const actionBtn = isBlocked ? `<button class="btn-unblock" onclick="toggleBlock('${v.email}', false)">Unblock</button>` : `<button class="btn-block" onclick="toggleBlock('${v.email}', true)">Block</button>`
-        return `<tr><td><span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="vis-name">${v.name}</div><div class="vis-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${typeBadge}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`
+        return `<tr>
+          <td>
+            <div class="cell-visitor">
+              <span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span>
+              <span>
+                <div class="vis-name">${v.name}</div>
+                <div class="vis-email">${v.email||''}</div>
+              </span>
+            </div>
+          </td>
+          <td>${v.college}</td>
+          <td>${typeBadge}</td>
+          <td>${statusBadge}</td>
+          <td>${actionBtn}</td>
+        </tr>`
       }).join('')
     }
 
