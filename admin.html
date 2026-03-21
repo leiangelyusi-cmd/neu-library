@@ -269,3 +269,75 @@
         return ms && (!c || v.college === c) && (t === '' || String(v.is_employee) === t)
       }))
     }
+
+    function renderLogs(data) {
+      document.getElementById('logCount').textContent = data.length + ' records'
+      const tbody = document.getElementById('logTableBody')
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No records found.</td></tr>'; return }
+      tbody.innerHTML = data.map(v => {
+        const date = new Date(v.visited_at).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })
+        const badge = v.is_employee ? `<span class="badge b-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge b-student">Student</span>`
+        return `<tr><td><span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="vis-name">${v.name}</div><div class="vis-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${v.purpose}</td><td>${badge}</td><td>${date}</td></tr>`
+      }).join('')
+    }
+
+    async function loadUsers() {
+      const { data, error } = await sb.from('visitors').select('*').order('visited_at', { ascending: false })
+      if (error) return
+      const seen = {}; const unique = []
+      data.forEach(v => { if (!seen[v.email]) { seen[v.email] = true; unique.push(v) } })
+      allUsers = unique; renderUsers(unique)
+    }
+
+    function filterUsers() {
+      const s = document.getElementById('userSearch').value.toLowerCase()
+      const c = document.getElementById('userCollege').value
+      const t = document.getElementById('userType').value
+      renderUsers(allUsers.filter(v => {
+        const ms = !s || v.name?.toLowerCase().includes(s) || v.email?.toLowerCase().includes(s) || v.college?.toLowerCase().includes(s)
+        return ms && (!c || v.college === c) && (t === '' || String(v.is_employee) === t)
+      }))
+    }
+
+    function renderUsers(data) {
+      document.getElementById('userCount').textContent = data.length + ' users'
+      const tbody = document.getElementById('userTableBody')
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No users found.</td></tr>'; return }
+      tbody.innerHTML = data.map(v => {
+        const isBlocked = blockedEmails.includes(v.email)
+        const typeBadge = v.is_employee ? `<span class="badge b-employee">${v.employee_type||'Employee'}</span>` : `<span class="badge b-student">Student</span>`
+        const statusBadge = isBlocked ? `<span class="badge b-blocked">Blocked</span>` : `<span class="badge b-active">Active</span>`
+        const actionBtn = isBlocked ? `<button class="btn-unblock" onclick="toggleBlock('${v.email}', false)">Unblock</button>` : `<button class="btn-block" onclick="toggleBlock('${v.email}', true)">Block</button>`
+        return `<tr><td><span class="avatar">${v.name?.charAt(0).toUpperCase()||'?'}</span><span><div class="vis-name">${v.name}</div><div class="vis-email">${v.email||''}</div></span></td><td>${v.college}</td><td>${typeBadge}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`
+      }).join('')
+    }
+
+    function toggleBlock(email, block) {
+      if (block) { if (!blockedEmails.includes(email)) blockedEmails.push(email) }
+      else { blockedEmails = blockedEmails.filter(e => e !== email) }
+      localStorage.setItem('blockedEmails', JSON.stringify(blockedEmails))
+      filterUsers()
+    }
+
+    function exportCSV() {
+      const rows = [['Name','Email','College','Purpose','Type','Employee Type','Date']]
+      allVisitors.forEach(v => rows.push([v.name, v.email||'', v.college, v.purpose, v.is_employee?'Employee':'Student', v.employee_type||'', new Date(v.visited_at).toLocaleString('en-PH')]))
+      downloadCSV(rows, 'visitor-logs.csv')
+    }
+
+    function exportUsersCSV() {
+      const rows = [['Name','Email','College','Type','Status']]
+      allUsers.forEach(v => rows.push([v.name, v.email||'', v.college, v.is_employee?'Employee':'Student', blockedEmails.includes(v.email)?'Blocked':'Active']))
+      downloadCSV(rows, 'users.csv')
+    }
+
+    function downloadCSV(rows, filename) {
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(new Blob([rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n')], { type:'text/csv' }))
+      a.download = filename; a.click()
+    }
+
+    checkAdmin()
+  </script>
+</body>
+</html>
