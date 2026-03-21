@@ -4,14 +4,14 @@ const SUPABASE_ANON_KEY = 'sb_publishable_yLRuNu8PCIMCa8uvlwCYRA_dp-MOJjR'
 const { createClient } = supabase
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-// Google login button
+// Google login button (for visitor pages)
 const loginBtn = document.getElementById('loginBtn')
 if (loginBtn) {
   loginBtn.addEventListener('click', async () => {
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://neu-library.netlify.app/user.html'
+        redirectTo: 'https://neu-library.netlify.app/visitor.html' // ✅ visitors go here
       }
     })
     if (error) {
