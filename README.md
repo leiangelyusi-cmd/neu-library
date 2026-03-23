@@ -8,7 +8,7 @@ Designed to log and manage library visitor records digitally.
  
 ---
  
-## 🌐 Live App
+## 🌐 Deployed Application
 👉 [https://neu-library.netlify.app](https://neu-library.netlify.app)
  
 ## 📁 Repository
