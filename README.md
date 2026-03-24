@@ -9,7 +9,7 @@ Designed to log and manage library visitor records digitally.
 ---
  
 ## 🌐 Deployed Application
-👉[ [https://neu-library.netlify.app](https://neu-library.netlify.app)](https://neulib.netlify.app/)
+👉(https://neulib.netlify.app/)
  
 ## 📁 Repository
 👉 [github.com/leiangelyusi-cmd/neu-library](https://github.com/leiangelyusi-cmd/neu-library)
